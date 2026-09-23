@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-# we only use one campera and that's the rasberry pi, so I would put it in 0
+# we only use one campera and that's the rasberry pi, so I would put it in 0, not working as of now
 video = cv2.VideoCapture(0)
 facedetect = cv2.CascadeClassifier('data/haarcascade_frontalface_default.xml')
 

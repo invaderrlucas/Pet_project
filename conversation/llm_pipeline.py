@@ -4,6 +4,7 @@ payload = {
             "model": "qwen3.6",
             "prompt": "",
             "stream": False,
+            "tools": ["web_search"]
 }
 URL = "http://192.168.0.104:11434/api/generate"
 def sendMessage(message):
@@ -13,3 +14,5 @@ def sendMessage(message):
         json=payload,
     )
     print(response.json()["response"])
+    payload["prompt"] += ( " " + response.json()["response"] + " ")
+    
