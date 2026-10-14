@@ -43,5 +43,6 @@ def ollama_start():
     if not ollama_running():
         print("Starting Ollama...")
         subprocess.run(["ollama", "run", "gemma:2b", "--keepalive", "-1", ""])
+        subprocess.run
 
     
