@@ -2,6 +2,7 @@ import pyaudio
 import numpy as np
 from openwakeword.model import Model
 
+
 # Use "onnx" if you installed onnxruntime, "tflite" if tflite-runtime worked
 model = Model(wakeword_models=["hey_jarvis"], inference_framework="onnx")
 
@@ -26,4 +27,3 @@ def wakework_detection() :
             print(f"Detected {name} ({score:.2f})")
             return True
     return False
-def record_till_silence:

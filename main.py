@@ -3,7 +3,8 @@ import datetime
 from pathlib import Path
 from personality.personality import Robot_Persona
 from conversation.llm_pipeline import sendMessage, ollama_start
-from input.wakeword import wakework_detection
+from input.wakeword import wakework_detection, stream
+from input.record import record_until_silence, transcribe
 #prototype messaging
 
 def main() -> None:
@@ -26,7 +27,10 @@ def main() -> None:
                     state = 1
 
             case 1: #wakeword activated and listening for commands
-                
+                listened_text = transcribe(record_until_silence(stream))
+                sendMessage(listened_text,False)
+                state = 0
+
             
             
 
