@@ -2,9 +2,12 @@ import getpass
 import datetime
 from pathlib import Path
 from personality.personality import Robot_Persona
-from conversation.llm_pipeline import sendMessage
+from conversation.llm_pipeline import sendMessage, ollama_start
 #prototype messaging
+
 def main() -> None:
+    ollama_start()
+    intro = ""
     memory = Path("/conversation/memory.txt")
     if memory.is_file():
         memory = memory
@@ -13,9 +16,9 @@ def main() -> None:
         birthday_pet = datetime.datetime.now()
         person = Robot_Persona(birthday_pet,name)
         intro = "you're " + str(person.name) + " and you're " + str(person.persona) + "your birthday is " + str(person.birthday) + " please respond approapriately"
-    sendMessage(intro)
+    sendMessage(intro,False)
     while True:
         message = input("type message here : ")
-        sendMessage(message)
+        sendMessage(message,False)
 if __name__ == "__main__":
     main()
