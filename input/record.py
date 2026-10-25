@@ -7,7 +7,7 @@ RATE = 16000
 whisper = WhisperModel("base.en", device="cpu", compute_type="int8")
 
 
-def record_until_silence(stream, silence_threshold=500, silence_time=1.5,
+def record_until_silence(stream, silence_threshold=500, silence_time=5.5,
                          wait_time=5, max_time=15):
     frames = []
     silent_chunks = 0

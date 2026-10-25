@@ -28,10 +28,9 @@ def main() -> None:
 
             case 1: #wakeword activated and listening for commands
                 listened_text = transcribe(record_until_silence(stream))
+                print(listened_text)
                 sendMessage(listened_text,False)
                 state = 0
-
-            
             
 
 
