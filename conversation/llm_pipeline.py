@@ -13,9 +13,11 @@ payload = {
 URL_out = "http://100.103.136.116:11434/api/generate"
 URL = "http://localhost:11434/api/generate"
 OLLAMA_URL = "http://localhost:11434"
+MODEL = "gemma:2b"
 
 def sendMessage(message,local):
     if local == True:
+        payload["model"] = MODEL
         payload["prompt"] += (" " + message + " ")
         response = requests.post(
         URL, 
@@ -39,9 +41,19 @@ def ollama_running():
         return requests.get(OLLAMA_URL, timeout=1).ok
     except requests.exceptions.RequestException:
         return False
-def ollama_start():
+def ollama_start(timeout=30):
     if not ollama_running():
         print("Starting Ollama...")
-        subprocess.run(["ollama", "run", "gemma:2b", "--keepalive", "-1", ""])
-
+        # start the server in the background, don't wait for it to exit
+        subprocess.Popen(["ollama", "serve"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        deadline = time.time() + timeout
+        while not ollama_running():
+            if time.time() > deadline:
+                raise RuntimeError("Ollama server did not come up")
+            time.sleep(0.5)
+    # preload the model and keep it in memory (empty prompt = just load)
+    requests.post(f"{OLLAMA_URL}/api/generate",
+                  json={"model": MODEL, "keep_alive": -1}, timeout=300)
+    print("Ollama ready")
     
