@@ -2,8 +2,8 @@ import requests
 import subprocess
 import time
 import json
-
-
+from pathlib import Path
+ 
 payload = {
             "model": "qwen3.6",
             "prompt": "",
@@ -14,6 +14,7 @@ URL_out = "http://100.103.136.116:11434/api/generate"
 URL = "http://localhost:11434/api/generate"
 OLLAMA_URL = "http://localhost:11434"
 MODEL = "gemma:2b"
+MEMORY_FILE = Path(__file__).parent / "memory.json"
 
 def sendMessage(message,local):
     if local == True:
@@ -25,6 +26,7 @@ def sendMessage(message,local):
         )
         print(response.json()["response"])
         payload["prompt"] += ( " " + response.json()["response"] + " ")
+
         
  
     elif local == False :
@@ -35,6 +37,7 @@ def sendMessage(message,local):
         )    
         print(response.json()["response"])
         payload["prompt"] += ( " " + response.json()["response"] + " ")
+        
 
 def ollama_running():
     try:
@@ -56,4 +59,15 @@ def ollama_start(timeout=30):
     requests.post(f"{OLLAMA_URL}/api/generate",
                   json={"model": MODEL, "keep_alive": -1}, timeout=300)
     print("Ollama ready")
-    
+
+def load_memory():
+    if MEMORY_FILE.is_file():
+        try:
+            return json.loads(MEMORY_FILE.read_text())
+        except json.JSONDecodeError:
+            print("memory.json is corrupt, starting fresh")
+    return None
+
+def save_memory(persona):
+    data = {"persona": persona, "history": payload["prompt"]}
+    MEMORY_FILE.write_text(json.dumps(data, indent=2))
