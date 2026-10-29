@@ -38,7 +38,7 @@ def voice_loop(persona):
                     listend_text = transcribe(audio)
                     print(listend_text)
                     if listend_text:
-                        reply = sendMessage(listend_text, False)
+                        reply = sendMessage(listend_text, True)
                         save_memory(persona)
                         events.put(("state", "talking"))
                         stream.stop_stream()               
@@ -76,8 +76,9 @@ def main() -> None:
         }
         intro = (f"You're {persona['name']}, your personality is "
                  f"{persona['personality']} and your birthday is "
-                 f"{persona['birthday']}. Please respond appropriately.")
-        intro = sendMessage(intro, False)
+                 f"{persona['birthday']}. Please respond appropriately."
+                 f"have one emotion tag from [happy], [blush], [cry] and [sad] ")
+        intro = sendMessage(intro, True)
         
         save_memory(persona)
     threading.Thread(target=voice_loop, args=(persona,), daemon=True).start()

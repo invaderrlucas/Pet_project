@@ -18,6 +18,7 @@ class Robot_Persona:
         self.persona = personality_rand()
         self.birthday = birthday
         self.name = name
+        #implements habits and quirks highly dependent on the user
     def returnInfo(self):
         info_template = "Hi my name is {0}, personality is {1} and my birthday {2}"
         

@@ -17,6 +17,7 @@ MODEL = "gemma:2b"
 MEMORY_FILE = Path(__file__).parent / "memory.json"
 
 def sendMessage(message,local):
+    #need refractoring, as it does not contain error codes and its not up to date to the current coding standards
     if local == True:
         payload["model"] = MODEL
         payload["prompt"] += (" " + message + " ")
@@ -28,7 +29,7 @@ def sendMessage(message,local):
         payload["prompt"] += ( " " + response.json()["response"] + " ")
         return response.json()["response"]
         
- 
+ #need refractoring, as it does not contain error codes and its not up to date to the current coding standards
     elif local == False :
         payload["prompt"] += (" " + message + " ")
         response = requests.post(

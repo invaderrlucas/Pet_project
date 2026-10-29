@@ -37,7 +37,8 @@ def speak(text):
         for chunk in voice.synthesize(text):
             samples = np.frombuffer(chunk.audio_int16_bytes, dtype=np.int16)
             if chunk.sample_rate != OUT_RATE:
-                # convert Piper's 22,050 Hz to the device's rate (e.g. 48,000 Hz)
+                # convert Piper's 22,050 Hz to the device's rate (e.g. 48,000 Hz) as earier implementation
+                # crashes the program.
                 g = gcd(OUT_RATE, chunk.sample_rate)
                 samples = resample_poly(samples, OUT_RATE // g, chunk.sample_rate // g)
                 samples = np.clip(samples, -32768, 32767).astype(np.int16)

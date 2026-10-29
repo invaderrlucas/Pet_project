@@ -6,7 +6,8 @@ EYE = (120, 220, 255)
 
 # target eye height per state
 EYE_HEIGHT = {"idle": 160, "listening": 200, "thinking": 70,
-              "talking": 160, "sleeping": 10}
+              "talking": 160, "sleeping": 10, "blushing" : 80, "Crying" : 80
+              , "Sickly" : 10}
 
 class Face:
     def __init__(self, screen):
@@ -28,7 +29,7 @@ class Face:
     def look_at(self, x, y):           # normalized -1..1
         self.gaze_target = [x, y]
 
-    def _blink(self, now):
+    def blink(self, now):
         if self.state == "sleeping":
             return 1.0
         if self.blink_start is None and now >= self.next_blink:
@@ -56,11 +57,15 @@ class Face:
             else:
                 self.gaze_target = [0.0, 0.0]
             self.next_glance = now + random.uniform(2, 5)
+        if self.set_state == "blushing" :
+            self.gaze_target = [0.0, 0.0]
+
+        
         # ease toward targets so changes look smooth
         self.eye_h += (target - self.eye_h) * min(1, dt * 10)
         for i in (0, 1):
             self.gaze[i] += (self.gaze_target[i] - self.gaze[i]) * min(1, dt * 6)
-        self.blink_factor = self._blink(now)
+        self.blink_factor = self.blink(now)
 
     def draw(self):
         self.screen.fill(BG)
