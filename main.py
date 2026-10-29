@@ -1,5 +1,6 @@
 import getpass 
 import datetime
+import time
 from pathlib import Path
 from personality.personality import Robot_Persona
 from conversation.llm_pipeline import sendMessage, ollama_start, load_memory, save_memory, payload 
@@ -7,7 +8,9 @@ from input.wakeword import wakework_detection, stream
 from input.record import record_until_silence, transcribe
 import threading, queue
 import pygame
-from face.face import Face
+from animation.face import Face
+from output.speech import speak
+from input.wakeword import wakework_detection, stream, flush_stream
 
 
 #prototype messaging
@@ -21,14 +24,13 @@ def voice_loop(persona):
                     events.put(("state", "listening"))
                     state = 1
             case 1:
-                text = transcribe(record_until_silence(stream))
-                if text:
-                    events.put(("state", "thinking"))
-                    reply = sendMessage(text, True)
-                    save_memory(persona)
-                    events.put(("state", "talking"))
-                    time.sleep(min(8, len(reply or "") / 15))  # until TTS exists
-                events.put(("state", "idle"))
+                listened_text = transcribe(record_until_silence(stream))
+                print(listened_text)
+                stream.stop_stream()
+                if listened_text:
+                    reply = sendMessage(listened_text, False)
+                    speak(reply)
+                flush_stream()
                 state = 0
 
 def main() -> None:
@@ -50,7 +52,8 @@ def main() -> None:
         intro = (f"You're {persona['name']}, your personality is "
                  f"{persona['personality']} and your birthday is "
                  f"{persona['birthday']}. Please respond appropriately.")
-        sendMessage(intro, False)
+        intro = sendMessage(intro, False)
+        
         save_memory(persona)
     threading.Thread(target=voice_loop, args=(persona,), daemon=True).start()
 

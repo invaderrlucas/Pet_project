@@ -26,7 +26,7 @@ def sendMessage(message,local):
         )
         print(response.json()["response"])
         payload["prompt"] += ( " " + response.json()["response"] + " ")
-
+        return response.json()["response"]
         
  
     elif local == False :
@@ -37,6 +37,7 @@ def sendMessage(message,local):
         )    
         print(response.json()["response"])
         payload["prompt"] += ( " " + response.json()["response"] + " ")
+        return response.json()["response"]
         
 
 def ollama_running():
