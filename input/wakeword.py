@@ -30,12 +30,12 @@ stream = audio.open(format=pyaudio.paInt16, channels=1, rate=16000,
 #            print(f"Detected {name} ({score:.2f})")
 def flush_stream():
     #throws the leftover audio that has piled up and flushes it
-    available = stream.get_read_available()
+    available_data = stream.get_read_available()
 
-    while available >= CHUNK:
+    while available_data >= CHUNK:
 
         stream.read(CHUNK, exception_on_overflow=False)
-        available = stream.get_read_available()
+        available_data = stream.get_read_available()
 
     model.reset()
 

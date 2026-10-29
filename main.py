@@ -4,18 +4,17 @@ import time
 from pathlib import Path
 from personality.personality import Robot_Persona
 from conversation.llm_pipeline import sendMessage, ollama_start, load_memory, save_memory, payload 
-from input.wakeword import wakework_detection, stream
 from input.record import record_until_silence, transcribe
 import threading, queue
 import pygame
 from animation.face import Face
 from output.speech import speak
-from input.wakeword import wakework_detection, stream, flush_stream
-
+from input.wakeword import wakeword_detection, stream, flush_stream
+from sounds.sounds import *
 
 #prototype messaging
 events = queue.Queue()
-SLEEP_AFTER = 60   # seconds without interaction before the pet gets sleepy
+sleep_timer = 10   # seconds without interaction before the pet gets sleepy
 
 def voice_loop(persona):
     state = 0
@@ -26,12 +25,13 @@ def voice_loop(persona):
         try:
             match state:
                 case 0:
-                    if wakework_detection():
+                    if wakeword_detection():
                         events.put(("state", "listening"))
                         state = 1
-                    elif not asleep and time.time() - last_activity > SLEEP_AFTER:
+                    elif not asleep and time.time() - last_activity > sleep_timer:
                         events.put(("state", "sleeping"))
                         asleep = True
+
                 case 1:
                     audio = record_until_silence(stream)
                     events.put(("state", "thinking"))      # Whisper + LLM time
@@ -84,6 +84,8 @@ def main() -> None:
     threading.Thread(target=voice_loop, args=(persona,), daemon=True).start()
 
     pygame.init()
+    pygame_sound_innit()
+    
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.mouse.set_visible(False)
     face = Face(screen)
@@ -96,6 +98,10 @@ def main() -> None:
         while not events.empty():
             kind, value = events.get_nowait()
             if kind == "state":
+                if face.state != "sleeping" and value == "sleeping":
+                    play_sound(Sounds.Snore)
+                elif face.state != "sleeping" and face.state == "sleeping":
+                    stop_sound("Snore")
                 face.set_state(value)
             elif kind == "look":
                 face.look_at(*value)
@@ -103,7 +109,7 @@ def main() -> None:
         face.draw()
         pygame.display.flip()
                 
-            
+
 
 
 
