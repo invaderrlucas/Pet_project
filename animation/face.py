@@ -18,9 +18,12 @@ class Face:
         self.gaze_target = [0.0, 0.0]
         self.next_blink = time.time() + random.uniform(2, 5)
         self.blink_start = None
+        self.next_glance = time.time() + random.uniform(2, 5)
 
     def set_state(self, state):
-        self.state = state
+        if state != self.state:
+            self.state = state
+            self.gaze_target = [0.0, 0.3] if state == "sleeping" else [0.0, 0.0]
 
     def look_at(self, x, y):           # normalized -1..1
         self.gaze_target = [x, y]
@@ -46,6 +49,13 @@ class Face:
             target += 25 * math.sin(now * 12)
         if self.state == "thinking":
             self.gaze_target = [0.6 * math.sin(now * 1.5), -0.5]
+        if self.state == "idle" and now >= self.next_glance:
+            # look around now and then, return to center half the time
+            if random.random() < 0.5:
+                self.gaze_target = [random.uniform(-0.7, 0.7), random.uniform(-0.3, 0.3)]
+            else:
+                self.gaze_target = [0.0, 0.0]
+            self.next_glance = now + random.uniform(2, 5)
         # ease toward targets so changes look smooth
         self.eye_h += (target - self.eye_h) * min(1, dt * 10)
         for i in (0, 1):

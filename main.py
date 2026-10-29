@@ -15,23 +15,48 @@ from input.wakeword import wakework_detection, stream, flush_stream
 
 #prototype messaging
 events = queue.Queue()
+SLEEP_AFTER = 60   # seconds without interaction before the pet gets sleepy
+
 def voice_loop(persona):
     state = 0
+    last_activity = time.time()
+    asleep = False
+    events.put(("state", "idle"))
     while True:
-        match state:
-            case 0:
-                if wakework_detection():
-                    events.put(("state", "listening"))
-                    state = 1
-            case 1:
-                listened_text = transcribe(record_until_silence(stream))
-                print(listened_text)
-                stream.stop_stream()
-                if listened_text:
-                    reply = sendMessage(listened_text, False)
-                    speak(reply)
-                flush_stream()
-                state = 0
+        try:
+            match state:
+                case 0:
+                    if wakework_detection():
+                        events.put(("state", "listening"))
+                        state = 1
+                    elif not asleep and time.time() - last_activity > SLEEP_AFTER:
+                        events.put(("state", "sleeping"))
+                        asleep = True
+                case 1:
+                    audio = record_until_silence(stream)
+                    events.put(("state", "thinking"))      # Whisper + LLM time
+                    listend_text = transcribe(audio)
+                    print(listend_text)
+                    if listend_text:
+                        reply = sendMessage(listend_text, False)
+                        save_memory(persona)
+                        events.put(("state", "talking"))
+                        stream.stop_stream()               
+                        try:
+                            speak(reply)
+                        finally:
+                            stream.start_stream()          
+                    flush_stream()
+                    events.put(("state", "idle"))
+                    last_activity = time.time()
+                    asleep = False
+                    state = 0
+        except Exception as e:
+            print("voice loop error:", e)
+            if not stream.is_active():
+                stream.start_stream()
+            events.put(("state", "idle"))
+            state = 0
 
 def main() -> None:
     ollama_start()
