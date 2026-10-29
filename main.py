@@ -77,7 +77,7 @@ def main() -> None:
         intro = (f"You're {persona['name']}, your personality is "
                  f"{persona['personality']} and your birthday is "
                  f"{persona['birthday']}. Please respond appropriately."
-                 f"have one emotion tag from [happy], [blush], [cry] and [sad] ")
+                 f" have one emotion tag from [happy], [blush], [cry] and [sad] ")
         intro = sendMessage(intro, True)
         
         save_memory(persona)

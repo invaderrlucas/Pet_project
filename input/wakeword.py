@@ -29,14 +29,18 @@ stream = audio.open(format=pyaudio.paInt16, channels=1, rate=16000,
 #        if score > 0.5:
 #            print(f"Detected {name} ({score:.2f})")
 def flush_stream():
-    """Throw away audio that piled up while we were busy."""
+    #throws the leftover audio that has piled up and flushes it
     available = stream.get_read_available()
+
     while available >= CHUNK:
+
         stream.read(CHUNK, exception_on_overflow=False)
         available = stream.get_read_available()
+
     model.reset()
 
-def wakework_detection() :
+def wakeword_detection() :
+    #scores the audio based on how likely the wakeword was spoken
     frame = np.frombuffer(stream.read(CHUNK, exception_on_overflow=False), dtype=np.int16)
     scores = model.predict(frame)
     for name, score in scores.items():

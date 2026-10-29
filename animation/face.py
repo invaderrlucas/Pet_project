@@ -57,7 +57,7 @@ class Face:
             else:
                 self.gaze_target = [0.0, 0.0]
             self.next_glance = now + random.uniform(2, 5)
-        if self.set_state == "blushing" :
+        if self.set_state == "blush" :
             self.gaze_target = [0.0, 0.0]
 
         

@@ -9,18 +9,18 @@ from piper import PiperVoice
 VOICE_PATH = Path(__file__).parent.parent / "voices" / "en_US-lessac-medium.onnx"
 
 voice = PiperVoice.load(str(VOICE_PATH))
-_audio = pyaudio.PyAudio()
+audio = pyaudio.PyAudio()
 
-def _pick_output():
+def pick_output():
     """Prefer PipeWire/Pulse (they handle any rate); otherwise the system default."""
-    for i in range(_audio.get_device_count()):
-        d = _audio.get_device_info_by_index(i)
+    for i in range(audio.get_device_count()):
+        d = audio.get_device_info_by_index(i)
         if d["maxOutputChannels"] > 0 and d["name"].lower() in ("pipewire", "pulse"):
             return i, int(d["defaultSampleRate"])
-    d = _audio.get_default_output_device_info()
+    d = audio.get_default_output_device_info()
     return d["index"], int(d["defaultSampleRate"])
 
-OUT_INDEX, OUT_RATE = _pick_output()
+OUT_INDEX, OUT_RATE = pick_output()
 print(f"Speech output: device {OUT_INDEX} at {OUT_RATE} Hz")
 
 def clean_for_speech(text):
@@ -31,7 +31,7 @@ def speak(text):
     text = clean_for_speech(text or "")
     if not text:
         return
-    stream = _audio.open(format=pyaudio.paInt16, channels=1, rate=OUT_RATE,
+    stream = audio.open(format=pyaudio.paInt16, channels=1, rate=OUT_RATE,
                          output=True, output_device_index=OUT_INDEX)
     try:
         for chunk in voice.synthesize(text):
